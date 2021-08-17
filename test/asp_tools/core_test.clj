@@ -1,6 +1,7 @@
 (ns asp-tools.core-test
   (:require [clojure.test :refer :all]
-            [asp-tools.core :refer :all]))
+            [asp-tools.core :refer :all]
+            [clojure.string :as str]))
 
 (deftest dzn-to-lp-empty-atomic-constraint
   (testing "Convert empty Atomic Constraint from DZN to LP format"
@@ -73,3 +74,108 @@
   (testing "Convert empty Direct Successors Constraint from DZN to LP format"
     (is (= (format "%% direct successor constraints\n")
            (dzn-to-lp-direct-successor-constraint "DirectSuccessors =  [] ;")))))
+
+(deftest dzn-to-lp-empty
+  (testing "Convert empty DZN content to LP"
+    (let [dzn-str "
+                                         "
+          lp-str  (str/join [
+                             (format "%% benchmark A031\n\n")
+                             (format "%% atomic constraints\n\n")
+                             (format "%% disjunctive constraints\n\n")
+                             (format "%% soft atomic constraints\n\n")
+                             (format "%% direct successor constraints\n\n")
+                             ])
+          ]
+      (is (= lp-str
+             (dzn-to-lp "A031" dzn-str))))))
+
+(deftest dzn-to-lp-no-constraints
+  (testing "Convert DZN problem without any constraints to LP"
+    (let [dzn-str " k = 18;
+                   b = 9;
+                   "
+          lp-str  (str/join [
+                             (format "%% benchmark A031\n%% num of cables\n#const k=18.\n%% num of 2-sided cables\n#const b=9.\n\n")
+                             (format "%% atomic constraints\n\n")
+                             (format "%% disjunctive constraints\n\n")
+                             (format "%% soft atomic constraints\n\n")
+                             (format "%% direct successor constraints\n\n")
+                             ])
+          ]
+      (is (= lp-str
+             (dzn-to-lp "A031" dzn-str))))))
+
+(deftest dzn-to-lp-with-atomic-constraints
+  (testing "Convert DZN problem with only atomic constraints to LP"
+    (let [dzn-str " k = 18;
+                    b = 9;
+                    AtomicConstraints =  [|
+                    4, 8|
+                    14, 11|
+                    14, 16|];
+                   "
+          lp-str  (str/join [
+                             (format "%% benchmark A031\n%% num of cables\n#const k=18.\n%% num of 2-sided cables\n#const b=9.\n\n")
+                             (format "%% atomic constraints\natomiccon(4,8).\natomiccon(14,11).\natomiccon(14,16).\n\n")
+                             (format "%% disjunctive constraints\n\n")
+                             (format "%% soft atomic constraints\n\n")
+                             (format "%% direct successor constraints\n\n")
+                             ])
+          ]
+      (is (= lp-str
+             (dzn-to-lp "A031" dzn-str))))))
+
+(deftest dzn-to-lp-with-disjunctive-constraints
+  (testing "Convert DZN problem with only disjunctive constraints to LP"
+    (let [dzn-str " k = 18;
+                    b = 9;
+                    DisjunctiveConstraints =  [|4, 3, 4, 5|
+                    13, 7, 13, 16|];
+                    "
+          lp-str  (str/join [
+                             (format "%% benchmark A031\n%% num of cables\n#const k=18.\n%% num of 2-sided cables\n#const b=9.\n\n")
+                             (format "%% atomic constraints\n\n")
+                             (format "%% disjunctive constraints\ndiscon(4,3,4,5).\ndiscon(13,7,13,16).\n\n")
+                             (format "%% soft atomic constraints\n\n")
+                             (format "%% direct successor constraints\n\n")
+                             ])
+          ]
+      (is (= lp-str
+             (dzn-to-lp "A031" dzn-str))))))
+
+(deftest dzn-to-lp-with-soft-atomic-constraints
+  (testing "Convert DZN problem with only soft atomic constraints to LP"
+    (let [dzn-str " k = 18;
+                    b = 9;
+                    SoftAtomicConstraints =  [|
+                    9, 1|
+                    17, 18|];
+                    "
+          lp-str  (str/join [
+                             (format "%% benchmark A031\n%% num of cables\n#const k=18.\n%% num of 2-sided cables\n#const b=9.\n\n")
+                             (format "%% atomic constraints\n\n")
+                             (format "%% disjunctive constraints\n\n")
+                             (format "%% soft atomic constraints\nsoftcon(9,1).\nsoftcon(17,18).\n\n")
+                             (format "%% direct successor constraints\n\n")
+                             ])
+          ]
+      (is (= lp-str
+             (dzn-to-lp "A031" dzn-str))))))
+
+(deftest dzn-to-lp-with-direct-successor-constraints
+  (testing "Convert DZN problem with only direct successor constraints to LP"
+    (let [dzn-str " k = 18;
+                    b = 9;
+                    DirectSuccessors =  [];
+                    "
+          lp-str  (str/join [
+                             (format "%% benchmark A031\n%% num of cables\n#const k=18.\n%% num of 2-sided cables\n#const b=9.\n\n")
+                             (format "%% atomic constraints\n\n")
+                             (format "%% disjunctive constraints\n\n")
+                             (format "%% soft atomic constraints\n\n")
+                             (format "%% direct successor constraints\n\n")
+                             ])
+          ]
+      (is (= lp-str
+             (dzn-to-lp "A031" dzn-str))))))
