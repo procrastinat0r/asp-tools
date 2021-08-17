@@ -5,15 +5,15 @@
 (deftest dzn-to-lp-empty-atomic-constraint
   (testing "Convert empty Atomic Constraint from DZN to LP format"
     (is (= (format "%% atomic constraints\n")
-           (dzn-to-lp-atomic_constraint "AtomicConstraints =  [ ] ;")))))
+           (dzn-to-lp-atomic-constraint "AtomicConstraints =  [ ] ;")))))
 
-(deftest dzn-to-lp-atomic-constraint
+(deftest dzn-to-lp-1-atomic-constraint
   (testing "Convert Atomic Constraint from DZN to LP format"
      (let [dzn-str "AtomicConstraints =  [|
                                            14, 16|];
                                          "]
        (is (= (format "%% atomic constraints\natomiccon(14,16).\n")
-              (dzn-to-lp-atomic_constraint dzn-str))))))
+              (dzn-to-lp-atomic-constraint dzn-str))))))
 
 (deftest dzn-to-lp-2-atomic-constraints
   (testing "Convert multiple Atomic Constraints from DZN to LP format"
@@ -22,7 +22,7 @@
                                            14, 16|];
                                          "]
        (is (= (format "%% atomic constraints\natomiccon(4,9).\natomiccon(14,16).\n")
-              (dzn-to-lp-atomic_constraint dzn-str))))))
+              (dzn-to-lp-atomic-constraint dzn-str))))))
 
 (deftest dzn-to-lp-empty-disjunctive-constraint
   (testing "Convert empty Disjunctive Constraint from DZN to LP format"
@@ -68,3 +68,8 @@
                                          "]
        (is (= (format "%% soft atomic constraints\nsoftcon(9,1).\nsoftcon(1,2).\nsoftcon(17,18).\n")
               (dzn-to-lp-soft-atomic-constraint dzn-str))))))
+
+(deftest dzn-to-lp-empty-direct-successors-constraints
+  (testing "Convert empty Direct Successors Constraint from DZN to LP format"
+    (is (= (format "%% direct successor constraints\n")
+           (dzn-to-lp-direct-successor-constraint "DirectSuccessors =  [] ;")))))

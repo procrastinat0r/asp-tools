@@ -15,7 +15,7 @@
       (for [[_ l r] cs]
         (format "%scon(%s,%s).\n" rule-name l r))))))
 
-(defn dzn-to-lp-atomic_constraint
+(defn dzn-to-lp-atomic-constraint
   "Convert an Atomic Constraint from DZN to LP format"
   [dzn-str]
   (dzn-to-lp-common-atomic-constraint dzn-str "Atomic" "atomic" "atomic"))
@@ -37,3 +37,8 @@
   "Convert a Soft Atomic Constraint from DZN to LP format"
   [dzn-str]
   (dzn-to-lp-common-atomic-constraint dzn-str "SoftAtomic" "soft atomic" "soft"))
+
+(defn dzn-to-lp-direct-successor-constraint
+  "Convert a Direct Successor Constraint from DZN to LP format"
+  [dzn-str]
+  (dzn-to-lp-common-atomic-constraint dzn-str "DirectSuccessors" "direct successor" "???"))
