@@ -23,3 +23,8 @@
                                          "]
        (is (= (format "%% atomic constraints\natomiccon(4,9).\natomiccon(14,16).\n")
               (dzn-to-lp-atomic_constraint dzn-str))))))
+
+(deftest dzn-to-lp-empty-disjunctive-constraint
+  (testing "Convert empty Disjunctive Constraint from DZN to LP format"
+    (is (= (format "%% disjunctive constraints\n")
+           (dzn-to-lp-disjunctive-constraint "DisjunctiveConstraints =  [ ] ;")))))
