@@ -80,3 +80,10 @@
              (dzn-to-lp-direct-successor-constraint (dzn-to-lp-get-section dzn-str "DirectSuccessors"))
              (format "\n")
              ]))
+
+(defn dzn-to-lp-convert-file
+  "Convert a file with a DZN problem to one in LP format"
+  [prb-name dzn-file lp-file]
+  (spit lp-file (dzn-to-lp prb-name (slurp dzn-file)))
+  )
+
