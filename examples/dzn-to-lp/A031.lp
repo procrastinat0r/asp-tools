@@ -57,4 +57,3 @@ softcon(15,16).
 softcon(17,18).
 
 % direct successor constraints
-% /
