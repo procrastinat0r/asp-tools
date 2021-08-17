@@ -35,3 +35,13 @@
           ]
       (is (= (format "%% disjunctive constraints\ndiscon(4,3,4,5).\n")
              (dzn-to-lp-disjunctive-constraint dzn-str))))))
+
+(deftest dzn-to-lp-3-disjunctive-constraint
+  (testing "Convert Disjunctive Constraint from DZN to LP format"
+    (let [dzn-str "DisjunctiveConstraints =  [|4, 3, 4, 5|
+                                                13, 2, 13, 11|
+                                                13, 7, 13, 16|];
+                                                "
+          ]
+      (is (= (format "%% disjunctive constraints\ndiscon(4,3,4,5).\ndiscon(13,2,13,11).\ndiscon(13,7,13,16).\n")
+             (dzn-to-lp-disjunctive-constraint dzn-str))))))
