@@ -28,3 +28,10 @@
   (testing "Convert empty Disjunctive Constraint from DZN to LP format"
     (is (= (format "%% disjunctive constraints\n")
            (dzn-to-lp-disjunctive-constraint "DisjunctiveConstraints =  [ ] ;")))))
+
+(deftest dzn-to-lp-1-disjunctive-constraint
+  (testing "Convert Disjunctive Constraint from DZN to LP format"
+    (let [dzn-str "DisjunctiveConstraints =  [|4, 3, 4, 5|];"
+          ]
+      (is (= (format "%% disjunctive constraints\ndiscon(4,3,4,5).\n")
+             (dzn-to-lp-disjunctive-constraint dzn-str))))))
