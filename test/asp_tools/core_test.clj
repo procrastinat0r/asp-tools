@@ -37,7 +37,7 @@
              (dzn-to-lp-disjunctive-constraint dzn-str))))))
 
 (deftest dzn-to-lp-3-disjunctive-constraint
-  (testing "Convert Disjunctive Constraint from DZN to LP format"
+  (testing "Convert multiple Disjunctive Constraints from DZN to LP format"
     (let [dzn-str "DisjunctiveConstraints =  [|4, 3, 4, 5|
                                                 13, 2, 13, 11|
                                                 13, 7, 13, 16|];
@@ -45,3 +45,26 @@
           ]
       (is (= (format "%% disjunctive constraints\ndiscon(4,3,4,5).\ndiscon(13,2,13,11).\ndiscon(13,7,13,16).\n")
              (dzn-to-lp-disjunctive-constraint dzn-str))))))
+
+(deftest dzn-to-lp-empty-soft-atomic-constraint
+  (testing "Convert empty Soft Atomic Constraint from DZN to LP format"
+    (is (= (format "%% soft atomic constraints\n")
+           (dzn-to-lp-soft-atomic-constraint "SoftAtomicConstraints =  [ ] ;")))))
+
+(deftest dzn-to-lp-1-soft-atomic-constraint
+  (testing "Convert Soft Atomic Constraint from DZN to LP format"
+     (let [dzn-str "SoftAtomicConstraints =  [|
+                                           9, 1|];
+                                         "]
+       (is (= (format "%% soft atomic constraints\nsoftcon(9,1).\n")
+              (dzn-to-lp-soft-atomic-constraint dzn-str))))))
+
+(deftest dzn-to-lp-3-soft-atomic-constraints
+  (testing "Convert multiple Soft Atomic Constraints from DZN to LP format"
+     (let [dzn-str "SoftAtomicConstraints =  [|
+                                           9, 1|
+                                           1, 2|
+                                           17, 18|];
+                                         "]
+       (is (= (format "%% soft atomic constraints\nsoftcon(9,1).\nsoftcon(1,2).\nsoftcon(17,18).\n")
+              (dzn-to-lp-soft-atomic-constraint dzn-str))))))
