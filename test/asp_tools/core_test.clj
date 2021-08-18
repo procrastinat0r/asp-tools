@@ -75,6 +75,24 @@
     (is (= (format "%% direct successor constraints\n")
            (dzn-to-lp-direct-successor-constraint "DirectSuccessors =  [] ;")))))
 
+(deftest dzn-to-lp-1-direct-successor-constraints
+  (testing "Convert Direct Successor Constraint from DZN to LP format"
+     (let [dzn-str "DirectSuccessors =  [|
+                                           14, 16|];
+                                         "]
+       (is (= (format "%% direct successor constraints\ndirsuccon(14,16).\n")
+              (dzn-to-lp-direct-successor-constraint dzn-str))))))
+
+(deftest dzn-to-lp-2-direct-successor-constraints
+  (testing "Convert multiple Direct Successor Constraints from DZN to LP format"
+     (let [dzn-str "DirectSuccessors =  [|
+                                           4, 9|
+                                           14, 16|];
+                                         "]
+       (is (= (format "%% direct successor constraints\ndirsuccon(4,9).\ndirsuccon(14,16).\n")
+              (dzn-to-lp-direct-successor-constraint dzn-str))))))
+
+
 (deftest dzn-to-lp-empty
   (testing "Convert empty DZN content to LP"
     (let [dzn-str "

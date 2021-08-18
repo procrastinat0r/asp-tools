@@ -5,7 +5,7 @@
 (defn- dzn-to-lp-common-atomic-constraint
   "Convert Soft or Atomic Constraints from DZN to LP format"
   [dzn-str dzn-tag lp-tag rule-name]
-  (let [pat (re-pattern (format "(?s)%sConstraints\\s+=\\s+\\[\\|(.*)\\]\\s*;.*" dzn-tag))
+  (let [pat (re-pattern (format "(?s)%s\\s+=\\s+\\[\\|(.*)\\]\\s*;.*" dzn-tag))
         [_ c](re-matches pat dzn-str)
         cs (when c (re-seq #"(\d+),\s+(\d+)\|" c))
         ]
@@ -18,7 +18,7 @@
 (defn dzn-to-lp-atomic-constraint
   "Convert an Atomic Constraint from DZN to LP format"
   [dzn-str]
-  (dzn-to-lp-common-atomic-constraint dzn-str "Atomic" "atomic" "atomic"))
+  (dzn-to-lp-common-atomic-constraint dzn-str "AtomicConstraints" "atomic" "atomic"))
 
 (defn dzn-to-lp-disjunctive-constraint
   "Convert an Disjunctive Constraint from DZN to LP format"
@@ -36,12 +36,12 @@
 (defn dzn-to-lp-soft-atomic-constraint
   "Convert a Soft Atomic Constraint from DZN to LP format"
   [dzn-str]
-  (dzn-to-lp-common-atomic-constraint dzn-str "SoftAtomic" "soft atomic" "soft"))
+  (dzn-to-lp-common-atomic-constraint dzn-str "SoftAtomicConstraints" "soft atomic" "soft"))
 
 (defn dzn-to-lp-direct-successor-constraint
   "Convert a Direct Successor Constraint from DZN to LP format"
   [dzn-str]
-  (dzn-to-lp-common-atomic-constraint dzn-str "DirectSuccessors" "direct successor" "???"))
+  (dzn-to-lp-common-atomic-constraint dzn-str "DirectSuccessors" "direct successor" "dirsuc"))
 
 (defn- dzn-to-lp-get-section
   "Get a section from a DZN problem"
