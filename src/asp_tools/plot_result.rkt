@@ -2,9 +2,9 @@
 (require plot)
 
 (define input-file
-  (if (empty? (vector->list (current-command-line-arguments)))
+  (if (vector-empty? (current-command-line-arguments))
       "../../examples/plot_result/clingo_DL_V2_out2.txt"
-      (first (current-command-line-arguments))))
+      (first (vector->list (current-command-line-arguments)))))
   
 ; get all the lines with optimization values from a file
 (define (get-opt-values file)
