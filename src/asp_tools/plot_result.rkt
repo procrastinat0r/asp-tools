@@ -23,12 +23,26 @@
            [opt-value (apply + values)])
       (list time opt-value))))
 
-;plot-values
+; We need to filter out values which have the same time stamp.
+; Here we always use the latest one (see unit test below for an example).
+(define (filter-duplicate-times values)
+  (reverse (remove-duplicates (reverse values) #:key first)))
 
-(define opt-values (map second plot-values))
+; an embedded unit test for filter-duplicate-times
+(module+ test
+  (require rackunit)
+  (check-equal? (filter-duplicate-times '((50 31) (50 12) (122 10) (122 6) (329 5) (329 3) (329 1)))
+                '((50 12) (122 6) (329 1)) ))
 
-;(plot (discrete-histogram plot-values))
+(define filtered-plot-values (filter-duplicate-times plot-values))
+
+;filtered-plot-values
+
+(define opt-values (map second filtered-plot-values))
+
+;(plot (discrete-histogram plot-values
+;                          ;#:y-min (* (apply min opt-values) 0.9)
+;                          #:y-max (* (apply max opt-values) 1.1)))
 (plot (lines plot-values
              #:y-min (* (apply min opt-values) 0.9)
              #:y-max (* (apply max opt-values) 1.1)))
-
