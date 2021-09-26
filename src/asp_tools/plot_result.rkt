@@ -28,7 +28,7 @@
 (define (filter-duplicate-times values)
   (reverse (remove-duplicates (reverse values) #:key first)))
 
-; an embedded unit test for filter-duplicate-times
+; embedded unit test for filter-duplicate-times
 (module+ test
   (require rackunit)
   (check-equal? (filter-duplicate-times '((50 31) (50 12) (122 10) (122 6) (329 5) (329 3) (329 1)))
@@ -36,13 +36,42 @@
 
 (define filtered-plot-values (filter-duplicate-times plot-values))
 
-;filtered-plot-values
-
 (define opt-values (map second filtered-plot-values))
 
 ;(plot (discrete-histogram plot-values
 ;                          ;#:y-min (* (apply min opt-values) 0.9)
 ;                          #:y-max (* (apply max opt-values) 1.1)))
-(plot (lines plot-values
-             #:y-min (* (apply min opt-values) 0.9)
-             #:y-max (* (apply max opt-values) 1.1)))
+
+; For a more histogram like output we need to beautify by adding
+; some values (for an example see the unit test)
+(define (beautify-plot-values values)
+  (if (< (length values) 2)
+      values
+      (foldl (lambda (x result)
+               (append result
+                       (list (list (first x) (second (last result)))) ; add an additional value which represents the from/to jump
+                       (list x)))
+             (list (first values)) ; initial value of the result
+             (rest values))))
+
+; embedded unit test for beautify-plot-vaues
+(module+ test
+  (check-equal? (beautify-plot-values '((50 12) (122 6) (329 1)))
+                '((50 12) (122 12) (122 6) (329 6) (329 1)) )
+  (check-equal? (beautify-plot-values '()) '())
+  (check-equal? (beautify-plot-values '((1 2))) '((1 2))))
+
+(plot
+ #:x-label "time in ms"
+ #:y-label "optimization value"
+ #:title (path->string (file-name-from-path input-file))
+ (list
+  ;(lines plot-values
+  ;       #:y-min (* (apply min opt-values) 0.9)
+  ;       #:y-max (* (apply max opt-values) 1.1))
+  (lines (beautify-plot-values filtered-plot-values)
+         #:x-min (* 0.9 (first (first filtered-plot-values)))
+         #:x-max (* 1.1 (first (last filtered-plot-values)))
+         #:y-min (* (apply min opt-values) 0.9)
+         #:y-max (* (apply max opt-values) 1.1))
+  ))
