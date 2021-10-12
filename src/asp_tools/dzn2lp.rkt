@@ -16,7 +16,7 @@
                      (format "~acon(~a,~a).\n" rule-name (first m) (second m)))))]) ; list with one formated string per constraint
     (string-append* (format "% ~a constraints\n" lp-tag) col)))
 
-; embedded unit test for atomic constraints
+; unit test for atomic constraints
 (module+ test
   (require rackunit)
   (let ([dzn-str-empty "AtomicConstraints =  [ ] ;"]
@@ -36,7 +36,7 @@
 (define (atomic-constraint s)
   (common-atomic-constraint s "AtomicConstraints" "atomic" "atomic"))
 
-; embedded unit test for disjunctive constraints
+; unit test for disjunctive constraints
 (module+ test
   (let ([dzn-str-empty "DisjunctiveConstraints =  [ ] ;"]
         [dzn-str-1-constraint "DisjunctiveConstraints =  [|
@@ -66,7 +66,7 @@
          )
     (string-append* "% disjunctive constraints\n" col)))
 
-; embedded unit test for soft atomic constraints
+; unit test for soft atomic constraints
 (module+ test
   (let ([dzn-str-empty "SoftAtomicConstraints  =  [ ] ;"]
         [dzn-str-1-constraint "SoftAtomicConstraints  =  [|
@@ -87,7 +87,7 @@
 (define (soft-atomic-constraint s)
   (common-atomic-constraint s "SoftAtomicConstraints" "soft atomic" "soft"))
 
-; embedded unit test for direct successor constraints
+; unit test for direct successor constraints
 (module+ test
   (let ([dzn-str-empty "DirectSuccessors   =  [ ] ;"]
         [dzn-str-1-constraint "DirectSuccessors   =  [|
@@ -107,10 +107,32 @@
 (define (direct-successor-constraint s)
   (common-atomic-constraint s "DirectSuccessors" "direct successor" "dirsuc"))
 
-; embedded unit test to convert a complete DZN problem into LP representation
+; unit test to convert a complete DZN problem into LP representation
 (module+ test
   (let ([dzn-str-empty "   "]
-        [dzn-str-k-b " k = 18;\n   b = 9;\n  " ]
+        [dzn-str-without-constraints " k = 18;\n   b = 9;\n  " ]
+        [dzn-str-with-atomic-constraints " k = 18;
+                    b = 9;
+                    AtomicConstraints =  [|
+                    4, 8|
+                    14, 11|
+                    14, 16|];
+                   "]
+        [dzn-str-with-disjunctive-constraints " k = 18;
+                    b = 9;
+                    DisjunctiveConstraints =  [|4, 3, 4, 5|
+                    13, 7, 13, 16|];
+                    "]
+        [dzn-str-with-soft-atomic-constraints " k = 18;
+                    b = 9;
+                    SoftAtomicConstraints =  [|
+                    9, 1|
+                    17, 18|];
+                    "]
+        [dzn-str-with-direct-successor-constraints " k = 18;
+                    b = 9;
+                    DirectSuccessors =  [];
+                    "]
         )
     (check-equal? (dzn-to-lp "A031" dzn-str-empty)
                   (string-join (list
@@ -120,7 +142,39 @@
                                 "% soft atomic constraints\n\n"
                                 "% direct successor constraints\n\n")
                                ""))
-    (check-equal? (dzn-to-lp "A031" dzn-str-k-b)
+    (check-equal? (dzn-to-lp "A031" dzn-str-without-constraints)
+                  (string-join (list
+                                "% benchmark A031\n% num of cables\n#const k=18.\n% num of 2-sided cables\n#const b=9.\n\n"
+                                "% atomic constraints\n\n"
+                                "% disjunctive constraints\n\n"
+                                "% soft atomic constraints\n\n"
+                                "% direct successor constraints\n\n")
+                               ""))
+    (check-equal? (dzn-to-lp "A031" dzn-str-with-atomic-constraints)
+                  (string-join (list
+                                "% benchmark A031\n% num of cables\n#const k=18.\n% num of 2-sided cables\n#const b=9.\n\n"
+                                "% atomic constraints\natomiccon(4,8).\natomiccon(14,11).\natomiccon(14,16).\n\n"
+                                "% disjunctive constraints\n\n"
+                                "% soft atomic constraints\n\n"
+                                "% direct successor constraints\n\n")
+                               ""))
+    (check-equal? (dzn-to-lp "A031" dzn-str-with-disjunctive-constraints)
+                  (string-join (list
+                                "% benchmark A031\n% num of cables\n#const k=18.\n% num of 2-sided cables\n#const b=9.\n\n"
+                                "% atomic constraints\n\n"
+                                "% disjunctive constraints\ndiscon(4,3,4,5).\ndiscon(13,7,13,16).\n\n"
+                                "% soft atomic constraints\n\n"
+                                "% direct successor constraints\n\n")
+                               ""))
+    (check-equal? (dzn-to-lp "A031" dzn-str-with-soft-atomic-constraints)
+                  (string-join (list
+                                "% benchmark A031\n% num of cables\n#const k=18.\n% num of 2-sided cables\n#const b=9.\n\n"
+                                "% atomic constraints\n\n"
+                                "% disjunctive constraints\n\n"
+                                "% soft atomic constraints\nsoftcon(9,1).\nsoftcon(17,18).\n\n"
+                                "% direct successor constraints\n\n")
+                               ""))
+    (check-equal? (dzn-to-lp "A031" dzn-str-with-direct-successor-constraints)
                   (string-join (list
                                 "% benchmark A031\n% num of cables\n#const k=18.\n% num of 2-sided cables\n#const b=9.\n\n"
                                 "% atomic constraints\n\n"
