@@ -1,9 +1,22 @@
 #lang racket
 
-(define input-file
-  (if (vector-empty? (current-command-line-arguments))
-      "../../examples/dzn-to-lp/R046.lp"
+; usage: racket <problem-name> <dzn file> <lp-file>
+; e.g. racket R046 ../../examples/dzn-to-lp/R046.dzn ../../examples/dzn-to-lp/R046.lp
+
+(define problem-name
+  (if (< (vector-length (current-command-line-arguments)) 3)
+      "R046"
       (first (vector->list (current-command-line-arguments)))))
+
+(define input-file
+  (if (< (vector-length (current-command-line-arguments)) 3)
+      "../../examples/dzn-to-lp/R046.dzn"
+      (second (vector->list (current-command-line-arguments)))))
+
+(define output-file
+  (if (< (vector-length (current-command-line-arguments)) 3)
+      "../../examples/dzn-to-lp/R046.lp"
+      (third (vector->list (current-command-line-arguments)))))
 
 (define (common-atomic-constraint s dzn-tag lp-tag rule-name)
   (let* ([pat (pregexp (format "(?s:~a\\s+=\\s+\\[\\|(.*)\\]\\s*;.*)" dzn-tag))]
@@ -229,3 +242,10 @@
 (define (dzn-to-lp-b dzn-str)
   (let ([m (regexp-match #px"(?s:\\s*b\\s+=\\s+(\\d+)\\s*;)" dzn-str)])
     (if m (format "% num of 2-sided cables\n#const b=~a.\n" (second m)) "")))
+
+; Convert a file with a DZN problem to one in LP format
+(define (dzn-to-lp-convert-file prb-name dzn-file lp-file)
+  (display-to-file (dzn-to-lp prb-name (file->string dzn-file)) lp-file #:exists 'replace))
+
+(dzn-to-lp-convert-file problem-name input-file output-file)
+
