@@ -107,3 +107,71 @@
 (define (direct-successor-constraint s)
   (common-atomic-constraint s "DirectSuccessors" "direct successor" "dirsuc"))
 
+; embedded unit test to convert a complete DZN problem into LP representation
+(module+ test
+  (let ([dzn-str-empty "   "]
+        [dzn-str-k-b " k = 18;\n   b = 9;\n  " ]
+        )
+    (check-equal? (dzn-to-lp "A031" dzn-str-empty)
+                  (string-join (list
+                                "% benchmark A031\n\n"
+                                "% atomic constraints\n\n"
+                                "% disjunctive constraints\n\n"
+                                "% soft atomic constraints\n\n"
+                                "% direct successor constraints\n\n")
+                               ""))
+    (check-equal? (dzn-to-lp "A031" dzn-str-k-b)
+                  (string-join (list
+                                "% benchmark A031\n% num of cables\n#const k=18.\n% num of 2-sided cables\n#const b=9.\n\n"
+                                "% atomic constraints\n\n"
+                                "% disjunctive constraints\n\n"
+                                "% soft atomic constraints\n\n"
+                                "% direct successor constraints\n\n")
+                               ""))
+    ))
+
+; Convert a DZN problem to LP format
+(define (dzn-to-lp prb-name dzn-str)
+  (string-join (list
+                 (format "% benchmark ~a\n" prb-name)
+                 (dzn-to-lp-k (get-section dzn-str "k"))
+                 (dzn-to-lp-b (get-section dzn-str "b"))
+                 "\n"
+                 (atomic-constraint (get-section dzn-str "AtomicConstraints"))
+                 "\n"
+                 (disjunctive-constraint (get-section dzn-str "DisjunctiveConstraints"))
+                 "\n"
+                 (soft-atomic-constraint (get-section dzn-str "SoftAtomicConstraints"))
+                 "\n"
+                 (direct-successor-constraint (get-section dzn-str "DirectSuccessors"))
+                 "\n"
+                 )
+               ""))
+
+; unit test for get-section
+(module+ test
+  (check-equal? (get-section "  k = 18; \n b = 9; \n  " "k") "k = 18;"))
+
+; Get a section from a DZN problem
+(define (get-section dzn-str tag)
+  (let* ([pat (pregexp (format "(?s:.*?(\\b~a\\s+=\\s+.*?;).*)" tag))]
+         [m (regexp-match pat dzn-str)])
+    (if m (second m) "")))
+
+; unit test for dzn-to-lp-k
+(module+ test
+  (check-equal? (dzn-to-lp-k "  k = 18; \n b = 9; \n  ") "% num of cables\n#const k=18.\n"))
+
+; Convert K spec from DZN format to LP format
+(define (dzn-to-lp-k dzn-str)
+  (let ([m (regexp-match #px"(?s:\\s*k\\s+=\\s+(\\d+)\\s*;)" dzn-str)])
+    (if m (format "% num of cables\n#const k=~a.\n" (second m)) "")))
+
+; embedded unit test for dzn-to-lp-b
+(module+ test
+  (check-equal? (dzn-to-lp-b "  k = 18; \n b = 9; \n  ") "% num of 2-sided cables\n#const b=9.\n"))
+
+; Convert B spec from DZN format to LP format
+(define (dzn-to-lp-b dzn-str)
+  (let ([m (regexp-match #px"(?s:\\s*b\\s+=\\s+(\\d+)\\s*;)" dzn-str)])
+    (if m (format "% num of 2-sided cables\n#const b=~a.\n" (second m)) "")))
