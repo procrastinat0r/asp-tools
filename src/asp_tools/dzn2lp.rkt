@@ -86,3 +86,24 @@
 ; Convert an Soft Atomic Constraint from DZN to LP format"
 (define (soft-atomic-constraint s)
   (common-atomic-constraint s "SoftAtomicConstraints" "soft atomic" "soft"))
+
+; embedded unit test for direct successor constraints
+(module+ test
+  (let ([dzn-str-empty "DirectSuccessors   =  [ ] ;"]
+        [dzn-str-1-constraint "DirectSuccessors   =  [|
+                                           14, 16|];
+                                         "]
+        [dzn-str-2-constraint "DirectSuccessors   =  [|
+                                           4, 9|
+                                           14, 16|];
+                                         "]
+        )
+    (check-equal? (direct-successor-constraint dzn-str-empty) "% direct successor constraints\n")
+    (check-equal? (direct-successor-constraint dzn-str-1-constraint) "% direct successor constraints\ndirsuccon(14,16).\n")
+    (check-equal? (direct-successor-constraint dzn-str-2-constraint) "% direct successor constraints\ndirsuccon(4,9).\ndirsuccon(14,16).\n")
+))
+
+; Convert an Direct Successors Constraint from DZN to LP format"
+(define (direct-successor-constraint s)
+  (common-atomic-constraint s "DirectSuccessors" "direct successor" "dirsuc"))
+
