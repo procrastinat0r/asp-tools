@@ -38,7 +38,6 @@
 
 ; embedded unit test for disjunctive constraints
 (module+ test
-  (require rackunit)
   (let ([dzn-str-empty "DisjunctiveConstraints =  [ ] ;"]
         [dzn-str-1-constraint "DisjunctiveConstraints =  [|
                                            4, 3, 4, 5|];
@@ -67,4 +66,23 @@
          )
     (string-append* "% disjunctive constraints\n" col)))
 
+; embedded unit test for soft atomic constraints
+(module+ test
+  (let ([dzn-str-empty "SoftAtomicConstraints  =  [ ] ;"]
+        [dzn-str-1-constraint "SoftAtomicConstraints  =  [|
+                                           9, 1|];
+                                         "]
+        [dzn-str-3-constraint "SoftAtomicConstraints  =  [|
+                                           9, 1|
+                                           1, 2|
+                                           17, 18|];
+                                         "]
+        )
+    (check-equal? (soft-atomic-constraint dzn-str-empty) "% soft atomic constraints\n")
+    (check-equal? (soft-atomic-constraint dzn-str-1-constraint) "% soft atomic constraints\nsoftcon(9,1).\n")
+    (check-equal? (soft-atomic-constraint dzn-str-3-constraint) "% soft atomic constraints\nsoftcon(9,1).\nsoftcon(1,2).\nsoftcon(17,18).\n")
+))
 
+; Convert an Soft Atomic Constraint from DZN to LP format"
+(define (soft-atomic-constraint s)
+  (common-atomic-constraint s "SoftAtomicConstraints" "soft atomic" "soft"))
