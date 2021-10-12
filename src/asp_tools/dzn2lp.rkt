@@ -40,8 +40,17 @@
 (module+ test
   (require rackunit)
   (let ([dzn-str-empty "DisjunctiveConstraints =  [ ] ;"]
+        [dzn-str-1-constraint "DisjunctiveConstraints =  [|
+                                           4, 3, 4, 5|];
+                                         "]
+        [dzn-str-3-constraint "DisjunctiveConstraints =  [|4, 3, 4, 5|
+                                                13, 2, 13, 11|
+                                                13, 7, 13, 16|];
+                                         "]
         )
     (check-equal? (disjunctive-constraint dzn-str-empty) "% disjunctive constraints\n")
+    (check-equal? (disjunctive-constraint dzn-str-1-constraint) "% disjunctive constraints\ndiscon(4,3,4,5).\n")
+    (check-equal? (disjunctive-constraint dzn-str-3-constraint) "% disjunctive constraints\ndiscon(4,3,4,5).\ndiscon(13,2,13,11).\ndiscon(13,7,13,16).\n")
 ))
 
 ; Convert a Disjunctive Constraint from DZN to LP format"
@@ -51,9 +60,9 @@
          [c (if (list? match) (second match) "")] ; all constraints as string
          [col (if (empty? c)
                  ""
-                 (for/list ([c (regexp-match* #px"\\d+,\\s+\\d+\\|" c)])
+                 (for/list ([c (regexp-match* #px"\\d+,\\s+\\d+,\\s+\\d+,\\s+\\d+\\|" c)])
                    (let ([m (regexp-match* #px"\\d+" c)])
-                     (format "~discon(~a,~a,~a,~a).\n" (first m) (second m) (third m) (fourth m)))))] ; list with one formated string per constraint
+                     (format "discon(~a,~a,~a,~a).\n" (first m) (second m) (third m) (fourth m)))))] ; list with one formated string per constraint
                  
          )
     (string-append* "% disjunctive constraints\n" col)))
