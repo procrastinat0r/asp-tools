@@ -3,26 +3,26 @@
 
 (define output-file
   (if (vector-empty? (current-command-line-arguments))
-      "../examples/A073_test.png"
+      "../examples/A031.png"
       (first (vector->list (current-command-line-arguments)))))
 
 (define input-file0
-  (if (vector-empty? (current-command-line-arguments))
-      "../examples/A073_k40_clingoDL_V1.txt"
+  (if (< (vector-length (current-command-line-arguments)) 2)
+      "../examples/A031_clingcon.txt"
       (second (vector->list (current-command-line-arguments)))))
 
 (define input-file1
-  (if (vector-empty? (current-command-line-arguments))
-      "../examples/A073_k50_clingoDL_V1.txt"
+  (if (< (vector-length (current-command-line-arguments)) 3)
+     #f
       (third (vector->list (current-command-line-arguments)))))
 
 (define input-file2
-  (if (vector-empty? (current-command-line-arguments))
+  (if (< (vector-length (current-command-line-arguments)) 4)
       #f
       (fourth (vector->list (current-command-line-arguments)))))
 
 (define input-file3
-  (if (vector-empty? (current-command-line-arguments))
+  (if (< (vector-length (current-command-line-arguments)) 5)
       #f
       (fifth (vector->list (current-command-line-arguments)))))
 
@@ -105,12 +105,16 @@
 
 ; plotting
 (define (lines-for-plot x style)
-  (let* ([file (get-input-file x)])
-    (lines (beautify-plot-values (filtered-plot-values file))
-           #:x-min (* 0.9 (first (first (filtered-plot-values file))))
-           #:x-max (* 1.1 (first (last (filtered-plot-values file))))
-           #:y-min (* (apply min (opt-values file)) 0.9)
-           #:y-max (* (apply max (opt-values file)) 1.1)
+  (let* ([file (get-input-file x)]
+         [values (filtered-plot-values file)]
+         [checked-values (if (null? values) (list (list 0 0)) values)]
+         [pre-opt-values (opt-values file)]
+         [checked-opt-values (if (null? pre-opt-values) (list 0) pre-opt-values)])
+    (lines (beautify-plot-values checked-values)
+           #:x-min (* 0.9 (first (first checked-values)))
+           #:x-max (* 1.1 (first (last checked-values)))
+           #:y-min (* (apply min checked-opt-values) 0.9)
+           #:y-max (* (apply max  checked-opt-values) 1.1)
            #:label (get-name file)
            #:style style)))
 
@@ -124,7 +128,7 @@
      [(1) (list (lines-for-plot 0 'solid) (lines-for-plot 1 'long-dash))]
      [(2) (list (lines-for-plot 0 'solid) (lines-for-plot 1 'long-dash) (lines-for-plot 2 'short-dash))]
      [(3) (list (lines-for-plot 0 'solid) (lines-for-plot 1 'long-dash) (lines-for-plot 2 'short-dash) (lines-for-plot 3 'dot))])
-   output-file))
+   output-file 'png))
 
 (define (plot-files)
   (plot-lines (- (length input-files-list) 1) (second (regexp-match #px"\\/([\\w]+)\\.png" output-file))))
